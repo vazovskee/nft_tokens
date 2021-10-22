@@ -15,6 +15,11 @@ contract DoggoTokenExchange {
     mapping (string => uint) tokenToOwner;     // сопоставление имени токена с его текущим владельцем
     mapping (string => uint128) tokensForSale; // сопоставление имени выставленного на продажу токена с его ценой
 
+    modifier checkTokenExistence(string tokenName) {
+        require(allTokens.exists(tokenName), 203, "Token with this name doesn't exist");
+        _;
+    }
+
     function createToken(string tokenName, string breed, string color, uint8 weight) public {
         require(!tokenName.empty(), 201, "Token's name cannot be empty");
         require(!allTokens.exists(tokenName), 202, "Token with this name already exists");
@@ -24,13 +29,12 @@ contract DoggoTokenExchange {
         tokenToOwner[tokenName] = msg.pubkey(); // присваиваем новый токен владельцу
     }
 
-    function getTokenInfo(string tokenName) public view returns (string) {
+    function getTokenInfo(string tokenName) public view checkTokenExistence(tokenName) returns (string) {
         DoggoToken doggo = allTokens[tokenName];
         string tokenInfo = format("Doggo named {} is a {} {} that weights {} kilograms.", doggo.name, doggo.color, doggo.breed, doggo.weight);
     }
 
-    function putTokenForSale(string tokenName, uint128 price) public {
-        require(allTokens.exists(tokenName), 203, "Token with this name doesn't exist");
+    function putTokenForSale(string tokenName, uint128 price) public checkTokenExistence(tokenName) {
         require(msg.pubkey() == tokenToOwner[tokenName], 204, "Only owner of the token can put it for sale");
         tvm.accept();
         
