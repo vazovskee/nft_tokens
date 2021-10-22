@@ -24,6 +24,11 @@ contract DoggoTokenExchange {
         tokenToOwner[tokenName] = msg.pubkey(); // присваиваем новый токен владельцу
     }
 
+    function getTokenInfo(string tokenName) public view returns (string) {
+        DoggoToken doggo = allTokens[tokenName];
+        string tokenInfo = format("Doggo named {} is a {} {} that weights {} kilograms.", doggo.name, doggo.color, doggo.breed, doggo.weight);
+    }
+
     function putTokenForSale(string tokenName, uint128 price) public {
         require(allTokens.exists(tokenName), 203, "Token with this name doesn't exist");
         require(msg.pubkey() == tokenToOwner[tokenName], 204, "Only owner of the token can put it for sale");
