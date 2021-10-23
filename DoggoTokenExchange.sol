@@ -3,7 +3,7 @@ pragma ton-solidity >= 0.35.0;
 pragma AbiHeader expire;
 
 contract DoggoTokenExchange {
-    
+
     struct DoggoToken {
         string name;
         string breed;
@@ -11,33 +11,41 @@ contract DoggoTokenExchange {
         uint8 weight;
     }
 
-    mapping (string => DoggoToken) allTokens;  // сопоставление имени токена с самим токеном
-    mapping (string => uint) tokenToOwner;     // сопоставление имени токена с его текущим владельцем
-    mapping (string => uint128) tokensForSale; // сопоставление имени выставленного на продажу токена с его ценой
+    DoggoToken[] public tokens;                    // массив, хранящий все созданные токены
+    mapping (uint => uint128) public tradedTokens; // сопоставление индекса продаваемого токена с его ценой 
+    mapping (string => uint) nameToToken;          // сопоставление названия токена с его индексом в массиве tokens
+    mapping (uint => uint) tokenToOwner;           // сопоставление индекса токена с адресом владельца
+    
 
-    modifier checkTokenExistence(string tokenName) {
-        require(allTokens.exists(tokenName), 203, "Token with this name doesn't exist");
+    // модификатор для проверки существования индекса токена в массиве tokens
+    modifier checkTokenExistence(uint tokenId) {
+        require(tokenId <= tokens.length - 1, 201, "Token with this id doesn't exist");
         _;
     }
 
+    // создание нового токена
     function createToken(string tokenName, string breed, string color, uint8 weight) public {
-        require(!tokenName.empty(), 201, "Token's name cannot be empty");
-        require(!allTokens.exists(tokenName), 202, "Token with this name already exists");
+        require(!tokenName.empty(), 202, "Token's name cannot be empty");
+        require(!nameToToken.exists(tokenName), 203, "Token with this name already exists");
         tvm.accept();
 
-        allTokens[tokenName] = DoggoToken(tokenName, breed, color, weight); // создание нового токена
-        tokenToOwner[tokenName] = msg.pubkey(); // присваиваем новый токен владельцу
+        tokens.push(DoggoToken(tokenName, breed, color, weight));
+
+        uint lastTokenId = tokens.length - 1;     // индекс последнего сохранённого токена
+        nameToToken[tokenName] = lastTokenId;     // устанавливаем соответствие между именем токена и его индексом
+        tokenToOwner[lastTokenId] = msg.pubkey(); // присваиваем новый токен владельцу
     }
 
-    function getTokenInfo(string tokenName) public view checkTokenExistence(tokenName) returns (string) {
-        DoggoToken doggo = allTokens[tokenName];
-        string tokenInfo = format("Doggo named {} is a {} {} that weights {} kilograms.", doggo.name, doggo.color, doggo.breed, doggo.weight);
-    }
-
-    function putTokenForSale(string tokenName, uint128 price) public checkTokenExistence(tokenName) {
-        require(msg.pubkey() == tokenToOwner[tokenName], 204, "Only owner of the token can put it for sale");
+    // выставление токена на продажу
+    function putTokenForSale(uint tokenId, uint128 price) public checkTokenExistence(tokenId) {
+        require(msg.pubkey() == tokenToOwner[tokenId], 204, "Only token's owner can put it for sale");
         tvm.accept();
-        
-        tokensForSale[tokenName] = price; // выставляем цену токена, выставленного на продажу
+
+        tradedTokens[tokenId] = price; // устанавливаем цену выставленного на продажу токена
+    }
+
+    // получение искомого токена
+    function getToken(uint tokenId) public checkTokenExistence(tokenId) view returns (DoggoToken) {
+        return tokens[tokenId];
     }
 }
