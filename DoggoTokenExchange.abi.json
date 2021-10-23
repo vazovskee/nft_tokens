@@ -1,0 +1,72 @@
+{
+	"ABI version": 2,
+	"version": "2.1",
+	"header": ["time", "expire"],
+	"functions": [
+		{
+			"name": "createToken",
+			"inputs": [
+				{"name":"tokenName","type":"string"},
+				{"name":"breed","type":"string"},
+				{"name":"color","type":"string"},
+				{"name":"weight","type":"uint8"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "putTokenForSale",
+			"inputs": [
+				{"name":"tokenId","type":"uint256"},
+				{"name":"price","type":"uint128"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getToken",
+			"inputs": [
+				{"name":"tokenId","type":"uint256"}
+			],
+			"outputs": [
+				{"components":[{"name":"name","type":"string"},{"name":"breed","type":"string"},{"name":"color","type":"string"},{"name":"weight","type":"uint8"}],"name":"value0","type":"tuple"}
+			]
+		},
+		{
+			"name": "constructor",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "tokens",
+			"inputs": [
+			],
+			"outputs": [
+				{"components":[{"name":"name","type":"string"},{"name":"breed","type":"string"},{"name":"color","type":"string"},{"name":"weight","type":"uint8"}],"name":"tokens","type":"tuple[]"}
+			]
+		},
+		{
+			"name": "tradedTokens",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"tradedTokens","type":"map(uint256,uint128)"}
+			]
+		}
+	],
+	"data": [
+	],
+	"events": [
+	],
+	"fields": [
+		{"name":"_pubkey","type":"uint256"},
+		{"name":"_timestamp","type":"uint64"},
+		{"name":"_constructorFlag","type":"bool"},
+		{"components":[{"name":"name","type":"string"},{"name":"breed","type":"string"},{"name":"color","type":"string"},{"name":"weight","type":"uint8"}],"name":"tokens","type":"tuple[]"},
+		{"name":"tradedTokens","type":"map(uint256,uint128)"},
+		{"name":"nameToToken","type":"optional(cell)"},
+		{"name":"tokenToOwner","type":"map(uint256,uint256)"}
+	]
+}
