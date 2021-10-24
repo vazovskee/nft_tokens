@@ -39,6 +39,7 @@ contract DoggoTokenExchange {
     // выставление токена на продажу
     function putTokenForSale(uint tokenId, uint128 price) public checkTokenExistence(tokenId) {
         require(msg.pubkey() == tokenToOwner[tokenId], 204, "Only token's owner can put it for sale");
+        require(!tradedTokens.exists(tokenId), 205, "This token is already up for sale");
         tvm.accept();
 
         tradedTokens[tokenId] = price; // устанавливаем цену выставленного на продажу токена
